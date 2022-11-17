@@ -1,14 +1,14 @@
 import * as RTL from "@testing-library/react";
 import * as Mocks from "~/mocks";
 
-import * as RemixReact from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export default function About() {
   return (
     <main>
       <h1>About Page</h1>
       <p>
-        <RemixReact.Link to="..">Go back home.</RemixReact.Link>
+        <Link to="..">Go back home.</Link>
       </p>
     </main>
   );
