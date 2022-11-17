@@ -1,8 +1,9 @@
 import * as RTL from "@testing-library/react";
 import * as Mocks from "~/mocks";
 
-import * as RemixServer from "@remix-run/node";
+import { json, type LoaderArgs } from "@remix-run/node";
 import * as RemixReact from "@remix-run/react";
+import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 
 let DEFAULT_MESSAGE = "Hello, World!";
 
@@ -10,7 +11,7 @@ type LoaderData = {
   message: string;
 };
 
-export let loader = ({ request }: RemixServer.LoaderArgs) => {
+export let loader = ({ request }: LoaderArgs) => {
   let url = new URL(request.url);
   let name = url.searchParams.get("name")?.trim();
 
@@ -19,18 +20,18 @@ export let loader = ({ request }: RemixServer.LoaderArgs) => {
     message = `Hello, ${name}!`;
   }
 
-  return RemixServer.json({ message });
+  return json({ message });
 };
 
 export default function Index() {
-  let { message } = RemixReact.useLoaderData<typeof loader>();
-  let [searchParams] = RemixReact.useSearchParams();
+  let { message } = useLoaderData<typeof loader>();
+  let [searchParams] = useSearchParams();
   let defaultName = searchParams.get("name")?.trim() || undefined;
 
   return (
     <main>
       <h1>{message}</h1>
-      <RemixReact.Form action="/">
+      <Form action="/">
         <input
           key={defaultName}
           name="name"
@@ -38,9 +39,9 @@ export default function Index() {
           defaultValue={defaultName}
         />
         <button type="submit">Submit</button>
-      </RemixReact.Form>
+      </Form>
       <p>
-        <RemixReact.Link to="about">Go to the about page.</RemixReact.Link>
+        <Link to="about">Go to the about page.</Link>
       </p>
     </main>
   );
@@ -50,9 +51,7 @@ if (process.env.NODE_ENV === "test" && import.meta.vitest) {
   let { describe, test, expect, vi } = import.meta.vitest;
 
   vi.mock("@remix-run/react", () => Mocks.createRemixReactMock({ path: "/" }));
-  let RemixReactMock = RemixReact as unknown as ReturnType<
-    typeof Mocks.createRemixReactMock
-  >;
+  let RemixReactMock = Mocks.getRemixReactMock(RemixReact);
 
   describe("component", () => {
     beforeEach(() => {
