@@ -10,7 +10,7 @@ type LoaderData = {
   message: string;
 };
 
-export let loader: RemixServer.LoaderFunction = ({ request }) => {
+export let loader = ({ request }: RemixServer.LoaderArgs) => {
   let url = new URL(request.url);
   let name = url.searchParams.get("name")?.trim();
 
@@ -19,13 +19,11 @@ export let loader: RemixServer.LoaderFunction = ({ request }) => {
     message = `Hello, ${name}!`;
   }
 
-  return RemixServer.json<LoaderData>({
-    message,
-  });
+  return RemixServer.json({ message });
 };
 
 export default function Index() {
-  let { message } = RemixReact.useLoaderData<LoaderData>();
+  let { message } = RemixReact.useLoaderData<typeof loader>();
   let [searchParams] = RemixReact.useSearchParams();
   let defaultName = searchParams.get("name")?.trim() || undefined;
 
