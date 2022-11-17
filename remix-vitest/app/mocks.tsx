@@ -1,10 +1,10 @@
-import * as React from "react";
-import * as ReactRouter from "react-router";
-import type * as RemixReact from "@remix-run/react";
+import type { Form, Link, Outlet } from "@remix-run/react";
+import type { ComponentProps, ComponentType } from "react";
+import { createPath, resolvePath } from "react-router";
 
 type CreateRemixReactMockOptions = {
   path: string;
-  Outlet?: React.ComponentType<React.ComponentProps<typeof RemixReact.Outlet>>;
+  Outlet?: ComponentType<ComponentProps<typeof Outlet>>;
 };
 
 export function createRemixReactMock(options: CreateRemixReactMockOptions) {
@@ -15,10 +15,8 @@ export function createRemixReactMock(options: CreateRemixReactMockOptions) {
       replace,
       children,
       ...rest
-    }: React.ComponentProps<typeof RemixReact.Form>) => {
-      let href = ReactRouter.createPath(
-        ReactRouter.resolvePath(action || ".", options.path)
-      );
+    }: ComponentProps<typeof Form>) => {
+      let href = createPath(resolvePath(action || ".", options.path));
       return (
         <form
           {...rest}
@@ -41,10 +39,8 @@ export function createRemixReactMock(options: CreateRemixReactMockOptions) {
       prefetch,
       children,
       ...rest
-    }: React.ComponentProps<typeof RemixReact.Link>) => {
-      let href = ReactRouter.createPath(
-        ReactRouter.resolvePath(to, options.path)
-      );
+    }: React.ComponentProps<typeof Link>) => {
+      let href = createPath(resolvePath(to, options.path));
       return (
         <a
           {...rest}
