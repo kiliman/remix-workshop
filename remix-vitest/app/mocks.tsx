@@ -7,6 +7,10 @@ type CreateRemixReactMockOptions = {
   Outlet?: ComponentType<ComponentProps<typeof Outlet>>;
 };
 
+export function getRemixReactMock<T>(remixReact: T) {
+  return remixReact as unknown as ReturnType<typeof createRemixReactMock>;
+}
+
 export function createRemixReactMock(options: CreateRemixReactMockOptions) {
   let MockedForm = vi.fn(
     ({
