@@ -9,7 +9,6 @@
     "generate:css": "tailwindcss -o ./app/styles/tailwind.css",
     "start": "remix-serve build",
     "docker": "docker-compose up -d",
-    "xsetup": "prisma generate && prisma migrate deploy && prisma db seed",
     "setup": "prisma/setup"
   },
   "dependencies": {

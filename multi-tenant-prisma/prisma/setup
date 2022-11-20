@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# setup default .env file
+if [ ! -f ../.env ]
+then
+  cp ../.env.example ../.env
+fi
+
 # initialize public schema
 prisma/prisma-migrate-dev public public
 
