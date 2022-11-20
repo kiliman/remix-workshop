@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+SCRIPT_DIR=$(dirname "$0")
+
+schema="$1"
+tenant="$2"
+set -a
+source ".env"
+set +a
+
+schemaFile="${SCRIPT_DIR}/$schema/schema.prisma"
+
+DATABASE_URL="$DATABASE_URL?schema=$tenant" npx prisma migrate dev --schema "$schemaFile" --skip-generate

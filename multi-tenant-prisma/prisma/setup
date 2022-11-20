@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# initialize public schema
+prisma/prisma-migrate-dev public public
+
+# generate prisma client for public and tenant schemas
+prisma/prisma-generate public
+prisma/prisma-generate tenant

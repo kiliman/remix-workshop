@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+SCRIPT_DIR=$(dirname "$0")
+
+TENANTS=$(npx ts-node "${SCRIPT_DIR}/get-tenants.ts")
+echo 'Loading tenants...'
+echo "$TENANTS"
+for tenant in $TENANTS; do
+  "${SCRIPT_DIR}/prisma-migrate-dev" tenant "$tenant"
+done
+
+"${SCRIPT_DIR}/prisma-generate" tenant

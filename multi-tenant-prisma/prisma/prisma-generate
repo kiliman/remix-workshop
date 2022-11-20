@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+SCRIPT_DIR=$(dirname "$0")
+
+schema="$1"
+schemaFile="${SCRIPT_DIR}/$schema/schema.prisma"
+
+npx prisma generate --schema "$schemaFile"
+
