@@ -39,7 +39,7 @@ export const action = async ({ request }: LoaderArgs) => {
   });
 };
 
-export default function Example() {
+export default function MultiPageForm() {
   const transition = useTransition();
   const showSpinner = useSpinDelay(transition.state !== "idle", {
     delay: 200,
