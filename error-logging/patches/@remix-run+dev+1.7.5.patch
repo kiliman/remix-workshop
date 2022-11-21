@@ -1,0 +1,56 @@
+diff --git a/node_modules/@remix-run/dev/dist/compiler/compileBrowser.js b/node_modules/@remix-run/dev/dist/compiler/compileBrowser.js
+index 36f250a..90244ea 100644
+--- a/node_modules/@remix-run/dev/dist/compiler/compileBrowser.js
++++ b/node_modules/@remix-run/dev/dist/compiler/compileBrowser.js
+@@ -82,7 +82,7 @@ const createEsbuildConfig = (config, options) => {
+     entryPoints[id] = config.routes[id].file + "?browser";
+   }
+ 
+-  let plugins = [cssFilePlugin.cssFilePlugin(options), urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/), nodeModulesPolyfill.NodeModulesPolyfillPlugin(), esbuildPluginPnp.pnpPlugin()];
++  let plugins = [cssFilePlugin.cssFilePlugin(options), urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /(\.server(\.[jt]sx?)?$)|(\/\w*\.server\/)/), nodeModulesPolyfill.NodeModulesPolyfillPlugin(), esbuildPluginPnp.pnpPlugin()];
+   return {
+     entryPoints,
+     outdir: config.assetsBuildDirectory,
+@@ -135,6 +135,14 @@ const createBrowserCompiler = (remixConfig, options) => {
+     let manifest = await assets.createAssetsManifest(remixConfig, metafile);
+     manifestChannel.write(manifest);
+     await writeAssetsManifest(remixConfig, manifest);
++
++    if (metafile) {
++      let analysis = await esbuild__namespace.analyzeMetafile(metafile, {
++        verbose: true
++      });
++      await fs.writeFileSafe(path__namespace.join(remixConfig.assetsBuildDirectory, "meta.json"), JSON.stringify(metafile, null, 2));
++      await fs.writeFileSafe(path__namespace.join(remixConfig.assetsBuildDirectory, "bundle-analysis.txt"), analysis);
++    }
+   };
+ 
+   return {
+diff --git a/node_modules/@remix-run/dev/dist/compiler/compilerServer.js b/node_modules/@remix-run/dev/dist/compiler/compilerServer.js
+index fc9b1e2..01fcea6 100644
+--- a/node_modules/@remix-run/dev/dist/compiler/compilerServer.js
++++ b/node_modules/@remix-run/dev/dist/compiler/compilerServer.js
+@@ -143,11 +143,22 @@ const createServerCompiler = (remixConfig, options) => {
+   let compile = async manifestChannel => {
+     let esbuildConfig = createEsbuildConfig(remixConfig, manifestChannel, options);
+     let {
+-      outputFiles
++      outputFiles,
++      metafile
+     } = await esbuild__namespace.build({ ...esbuildConfig,
++      metafile: true,
+       write: false
+     });
+     await writeServerBuildResult(remixConfig, outputFiles);
++
++    if (metafile) {
++      let analysis = await esbuild__namespace.analyzeMetafile(metafile, {
++        verbose: true
++      });
++      let serverBuildDirectory = path__namespace.dirname(remixConfig.serverBuildPath);
++      await fse__namespace.writeFile(path__namespace.join(serverBuildDirectory, "meta.json"), JSON.stringify(metafile, null, 2));
++      await fse__namespace.writeFile(path__namespace.join(serverBuildDirectory, "bundle-analysis.txt"), analysis);
++    }
+   };
+ 
+   return {

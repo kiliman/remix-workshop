@@ -1,0 +1,216 @@
+diff --git a/node_modules/@remix-run/server-runtime/dist/esm/server.js b/node_modules/@remix-run/server-runtime/dist/esm/server.js
+index 026576d..ea40847 100644
+--- a/node_modules/@remix-run/server-runtime/dist/esm/server.js
++++ b/node_modules/@remix-run/server-runtime/dist/esm/server.js
+@@ -20,6 +20,10 @@ import { createServerHandoffString } from './serverHandoff.js';
+ 
+ // TODO: RRR - Change import to @remix-run/router
+ const createRequestHandler = (build, mode) => {
++  if (build.entry.module.handleError === undefined) {
++    build.entry.module.handleError = () => {};
++  }
++
+   let routes = createRoutes(build.routes);
+   let serverMode = isServerMode(mode) ? mode : ServerMode.Production;
+   return async function requestHandler(request, loadContext = {}) {
+@@ -37,7 +41,8 @@ const createRequestHandler = (build, mode) => {
+         request,
+         loadContext,
+         matches: matches,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+       let routeId = url.searchParams.get("_data");
+ 
+@@ -60,7 +65,8 @@ const createRequestHandler = (build, mode) => {
+         request,
+         loadContext,
+         matches,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+ 
+       response = await responsePromise;
+@@ -71,7 +77,8 @@ const createRequestHandler = (build, mode) => {
+         matches,
+         request,
+         routes,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+     }
+ 
+@@ -91,7 +98,8 @@ async function handleDataRequest({
+   loadContext,
+   matches,
+   request,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   if (!isValidRequestMethod(request)) {
+     return errorBoundaryError(new Error(`Invalid request method "${request.method}"`), 405);
+@@ -161,6 +169,10 @@ async function handleDataRequest({
+   } catch (error) {
+     if (serverMode !== ServerMode.Test) {
+       console.error(error);
++
++      if (error instanceof Error) {
++        handleError(request, error, loadContext);
++      }
+     }
+ 
+     if (serverMode === ServerMode.Development && error instanceof Error) {
+@@ -177,7 +189,8 @@ async function handleDocumentRequest({
+   matches,
+   request,
+   routes,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   let url = new URL(request.url);
+   let appState = {
+@@ -251,6 +264,10 @@ async function handleDocumentRequest({
+ 
+       if (serverMode !== ServerMode.Test) {
+         console.error(`There was an error running the action for route ${actionMatch.route.id}`);
++
++        if (error instanceof Error) {
++          handleError(request, error, loadContext);
++        }
+       }
+     }
+   }
+@@ -335,6 +352,10 @@ async function handleDocumentRequest({
+ 
+       if (serverMode !== ServerMode.Test) {
+         console.error(`There was an error running the data loader for route ${match.route.id}`);
++
++        if (error instanceof Error) {
++          handleError(request, error, loadContext);
++        }
+       }
+ 
+       break;
+@@ -435,7 +456,8 @@ async function handleResourceRequest({
+   loadContext,
+   matches,
+   request,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   let match = matches.slice(-1)[0];
+ 
+diff --git a/node_modules/@remix-run/server-runtime/dist/server.js b/node_modules/@remix-run/server-runtime/dist/server.js
+index 5ac2304..95eae3a 100644
+--- a/node_modules/@remix-run/server-runtime/dist/server.js
++++ b/node_modules/@remix-run/server-runtime/dist/server.js
+@@ -24,6 +24,10 @@ var serverHandoff = require('./serverHandoff.js');
+ 
+ // TODO: RRR - Change import to @remix-run/router
+ const createRequestHandler = (build, mode$1) => {
++  if (build.entry.module.handleError === undefined) {
++    build.entry.module.handleError = () => {};
++  }
++
+   let routes$1 = routes.createRoutes(build.routes);
+   let serverMode = mode.isServerMode(mode$1) ? mode$1 : mode.ServerMode.Production;
+   return async function requestHandler(request, loadContext = {}) {
+@@ -41,7 +45,8 @@ const createRequestHandler = (build, mode$1) => {
+         request,
+         loadContext,
+         matches: matches,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+       let routeId = url.searchParams.get("_data");
+ 
+@@ -64,7 +69,8 @@ const createRequestHandler = (build, mode$1) => {
+         request,
+         loadContext,
+         matches,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+ 
+       response = await responsePromise;
+@@ -75,7 +81,8 @@ const createRequestHandler = (build, mode$1) => {
+         matches,
+         request,
+         routes: routes$1,
+-        serverMode
++        serverMode,
++        handleError: build.entry.module.handleError
+       });
+     }
+ 
+@@ -95,7 +102,8 @@ async function handleDataRequest({
+   loadContext,
+   matches,
+   request,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   if (!isValidRequestMethod(request)) {
+     return errorBoundaryError(new Error(`Invalid request method "${request.method}"`), 405);
+@@ -165,6 +173,10 @@ async function handleDataRequest({
+   } catch (error) {
+     if (serverMode !== mode.ServerMode.Test) {
+       console.error(error);
++
++      if (error instanceof Error) {
++        handleError(request, error, loadContext);
++      }
+     }
+ 
+     if (serverMode === mode.ServerMode.Development && error instanceof Error) {
+@@ -181,7 +193,8 @@ async function handleDocumentRequest({
+   matches,
+   request,
+   routes,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   let url = new URL(request.url);
+   let appState = {
+@@ -255,6 +268,10 @@ async function handleDocumentRequest({
+ 
+       if (serverMode !== mode.ServerMode.Test) {
+         console.error(`There was an error running the action for route ${actionMatch.route.id}`);
++
++        if (error instanceof Error) {
++          handleError(request, error, loadContext);
++        }
+       }
+     }
+   }
+@@ -339,6 +356,10 @@ async function handleDocumentRequest({
+ 
+       if (serverMode !== mode.ServerMode.Test) {
+         console.error(`There was an error running the data loader for route ${match.route.id}`);
++
++        if (error instanceof Error) {
++          handleError(request, error, loadContext);
++        }
+       }
+ 
+       break;
+@@ -439,7 +460,8 @@ async function handleResourceRequest({
+   loadContext,
+   matches,
+   request,
+-  serverMode
++  serverMode,
++  handleError
+ }) {
+   let match = matches.slice(-1)[0];
+ 

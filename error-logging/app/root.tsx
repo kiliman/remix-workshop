@@ -3,6 +3,7 @@ import {
   Links,
   LiveReload,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -24,7 +25,16 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <div>
+          <nav className="flex gap-4 p-4 border-b">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/users/">Users</NavLink>
+          </nav>
+          <div className="m-4">
+            <Outlet />
+          </div>
+        </div>
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

@@ -1,9 +1,12 @@
 import { type ActionArgs, type LoaderArgs } from '@remix-run/node'
 import { Form } from '@remix-run/react'
 import { z } from 'zod'
-import { getUser } from '~/models/user.server'
+import { getUser, saveUser } from '~/models.server/user'
+import { getField, getInvalid } from '~/utils/data'
 import { getFormData, getParamsOrThrow } from '~/utils/params'
+import { invalid, notFound } from '~/utils/responses'
 import {
+  redirect,
   typedjson,
   useTypedActionData,
   useTypedLoaderData,
@@ -12,6 +15,9 @@ import {
 export const loader = async ({ params }: LoaderArgs) => {
   const { userId } = getParamsOrThrow(params, z.object({ userId: z.number() }))
   const user = await getUser(userId)
+  if (!user) {
+    throw notFound('User not found')
+  }
   return typedjson({ user })
 }
 
@@ -21,81 +27,22 @@ const formSchema = z.object({
   age: z.number(),
 })
 
-function invalid<T>(data: T) {
-  return typedjson(data, { status: 400 })
-}
-export function success<SuccessType>(
-  data: SuccessType,
-  init?: number | ResponseInit,
-) {
-  return typedjson(
-    { success: data } as ActionData<SuccessType, unknown>,
-    init ?? { status: 200 },
-  )
-}
-
 export const action = async ({ request, params }: ActionArgs) => {
-  getParamsOrThrow(params, z.object({ userId: z.number() }))
+  const { userId } = getParamsOrThrow(params, z.object({ userId: z.number() }))
   const [errors, data, fields] = await getFormData(request, formSchema)
   if (errors) {
     return invalid({ errors, fields })
   }
-  return typedjson({
-    success: { message: 'successfully saved user' },
-  })
-}
+  const { name, email, age } = data
+  await saveUser(userId, { name, email, age })
 
-export type ErrorsType = { [key: string]: string }
-export type ActionData<SuccessType, FieldsType> =
-  | { errors: ErrorsType; fields: FieldsType }
-  | { success: SuccessType }
-
-export function getInvalid<FieldsType>(
-  data: ActionData<unknown, FieldsType> | null,
-) {
-  return [getErrors(data), getFields(data)]
-}
-
-export function getErrors<FieldsType>(
-  data: ActionData<unknown, FieldsType> | null,
-) {
-  if (data && 'errors' in data) {
-    return data['errors'] as ErrorsType
-  }
-  return {} as ErrorsType
-}
-export function getFields<FieldsType>(
-  data: ActionData<unknown, FieldsType> | null,
-) {
-  if (data && 'fields' in data) {
-    return data['fields'] as FieldsType
-  }
-  return {} as FieldsType
-}
-
-export function getSuccess<SuccessType>(
-  data: ActionData<SuccessType, unknown> | null,
-) {
-  if (data && 'success' in data) {
-    return data['success'] as SuccessType
-  }
-  return {} as SuccessType
-}
-
-export function getField<T>(
-  data: T,
-  fields: { [key: string]: string },
-  name: keyof T,
-) {
-  return (fields[name as string] as string) ?? data[name]
+  return redirect('/users/')
 }
 
 export default function Index() {
   const { user } = useTypedLoaderData<typeof loader>()
-  console.log(user.birthday.toLocaleDateString())
   const data = useTypedActionData<typeof action>()
   const [errors, fields] = getInvalid(data)
-  const { message } = getSuccess(data)
 
   return (
     <Form method="post" className="m-4">
@@ -136,7 +83,6 @@ export default function Index() {
         >
           Submit
         </button>
-        {message && <p className="text-green-700">{message}</p>}
       </div>
     </Form>
   )
