@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "path": "../error-logging"
+    },
+    {
+      "path": "../multi-page-forms"
+    },
+    {
+      "path": "../multi-tenant-prisma"
+    },
+    {
+      "path": "../patch-tool"
+    },
+    {
+      "path": "../remix-vitest"
+    }
+  ],
+  "settings": {}
+}
