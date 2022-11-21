@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+CWD=$(pwd)
+PATCHES_DIR=~/Projects/scratch/remix-patches
+
+# remove existing remix patches
+rm -rf patches/@remix-run*
+
+# copy build package with patches to current project
+rsync -avz "$PATCHES_DIR/src/build/node_modules/@remix-run/" "$CWD/node_modules/@remix-run/"
+chmod +x "$CWD/node_modules/.bin/remix"
+
+# run patch-package
+npx patch-package @remix-run/dev
+npx patch-package @remix-run/server-runtime

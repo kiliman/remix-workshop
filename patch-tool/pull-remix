@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+PATCHES_DIR=~/Projects/scratch/remix-patches
+owner="remix"
+# repo tagged with package name but all same repo remix/remix-run
+package="@remix-run/dev"
+version="$1"
+pkgfile="$(echo "$owner/$package@$version" | sed -r 's/[/@]/-/g')"
+zipfile="$pkgfile.zip"
+
+# initialize patch dirs
+mkdir -p "$PATCHES_DIR/tmp"
+mkdir -p "$PATCHES_DIR/src"
+
+# download src at tag and unzip
+curl -s -o "$PATCHES_DIR/tmp/$zipfile" "https://codeload.github.com/remix-run/remix/zip/refs/tags/$package@$version"
+unzip -q -o "$PATCHES_DIR/tmp/$zipfile" -d "$PATCHES_DIR/tmp"
+# need to remove the top level dir and copy to src
+rsync -a "$PATCHES_DIR/tmp/$pkgfile/" "$PATCHES_DIR/src"
