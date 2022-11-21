@@ -1,16 +1,23 @@
 import * as RTL from "@testing-library/react";
 import * as Mocks from "~/mocks";
 
-import type * as RemixNode from "@remix-run/node";
-import * as RemixReact from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "@remix-run/react";
 
 import picoStylesHref from "~/styles/pico.css";
 
-export let links: RemixNode.LinksFunction = () => [
+export let links: LinksFunction = () => [
   { rel: "stylesheet", href: picoStylesHref },
 ];
 
-export let meta: RemixNode.MetaFunction = () => ({
+export let meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "New Remix App",
   viewport: "width=device-width,initial-scale=1",
@@ -20,14 +27,14 @@ export default function Root() {
   return (
     <html lang="en">
       <head>
-        <RemixReact.Meta />
-        <RemixReact.Links />
+        <Meta />
+        <Links />
       </head>
       <body>
-        <RemixReact.Outlet />
-        <RemixReact.ScrollRestoration />
-        <RemixReact.Scripts />
-        <RemixReact.LiveReload />
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );

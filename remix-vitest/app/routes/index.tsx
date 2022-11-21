@@ -95,7 +95,7 @@ if (process.env.NODE_ENV === "test" && import.meta.vitest) {
       });
 
       test("when name is blank string", async () => {
-        let request = new Request("http://test.com/?name=  ");
+        let request = new Request("http://test.com/?name=");
         let response = await loader({ context: {}, params: {}, request });
         expect(response.status).toBe(200);
         let data: LoaderData = await response.json();
@@ -104,7 +104,7 @@ if (process.env.NODE_ENV === "test" && import.meta.vitest) {
     });
 
     test("should name in message", async () => {
-      let request = new Request("http://test.com/?name=  Test  ");
+      let request = new Request("http://test.com/?name=Test");
       let response = await loader({ context: {}, params: {}, request });
       expect(response.status).toBe(200);
       let data: LoaderData = await response.json();
