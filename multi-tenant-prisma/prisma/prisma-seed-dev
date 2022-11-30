@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+SCRIPT_DIR=$(dirname "$0")
+
+schema="$1"
+tenant="$2"
+set -a
+source ".env"
+set +a
+
+seedFile="${SCRIPT_DIR}/$schema/seed.ts"
+
+DATABASE_URL="$DATABASE_URL?schema=$tenant" npx ts-node "$seedFile" "$tenant"
